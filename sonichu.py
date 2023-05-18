@@ -56,14 +56,14 @@ bg = pygame.transform.scale(ts, (800,600))
 run = True
 Srun = pygame.image.load('Sr.png').convert_alpha()
 
-def get_image(sheet,frame,width,height, color):
+def get_image(sheet,frame,width,height, color, big):
     image = pygame.Surface((width,height)).convert_alpha()
-    image.blit(sheet, (0,0), ((frame * width),0, 22,22))
-    image = pygame.transform.scale(image,(100,100))
+    image.blit(sheet, (0,0), (0,(frame * height), (width * frame) + width,(height * frame) + width))
+    image = pygame.transform.scale(image,(big,big))
     image.set_colorkey(color)
     return image
 
-frame0 = get_image(Srun,0,22,22, black)
+frame0 = get_image(Srun,0,22,22, black, 100)
 
 while run == True:
     clock.tick(50)
@@ -77,10 +77,8 @@ while run == True:
             run = False
             quit()
             
-    pygame.display.update()
+        pygame.display.update()
             
-    keys = pygame.key.get_pressed()
+        keys = pygame.key.get_pressed()
     
 pygame.quit()
-
-
