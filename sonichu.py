@@ -1,219 +1,171 @@
-import pygame
+#Sonichu
+#AidenKrahn
+#Started May 16
+
+import pygame, random
+
 pygame.init()
 
-win = pygame.display.set_mode((500,500))
-
-pygame.display.set_caption("DooomerCrawl")
+window_width = 800
+window_height = 600
+win = pygame.display.set_mode((window_width, window_height))
+pygame.display.set_caption("Sonichu: CWC's Love Quest")
 
 clock = pygame.time.Clock()
 
+ts = pygame.image.load('titscr.png')#titlescreen
 
-walkRight = [pygame.image.load('R1.png'), pygame.image.load('R2.png'), pygame.image.load('R3.png'), pygame.image.load('R4.png'), pygame.image.load('R5.png'), pygame.image.load('R6.png'), pygame.image.load('R7.png'), pygame.image.load('R8.png'), pygame.image.load('R9.png')]
-walkLeft = [pygame.image.load('L1.png'), pygame.image.load('L2.png'), pygame.image.load('L3.png'), pygame.image.load('L4.png'), pygame.image.load('L5.png'), pygame.image.load('L6.png'), pygame.image.load('L7.png'), pygame.image.load('L8.png'), pygame.image.load('L9.png')]
-bg = pygame.image.load('bg.jpg')
-char = pygame.image.load('standing.png')
 
+#define rgb colors
+black = (0,0,0)
+white = (255,255,255)
+red = (255,0,0)
+green = (0,255,0)
+blue = (0,0,255)
+yellow = (255,255,0)
+orange = (255,128,0)
+purple = (153,0,153)
+
+#----classes----
+#what human controls
 class Player(object):
-    def __init__(self, x, y, height, width):
-        self.x = x
-        self.y = y
-        self.height = height
-        self.width = width
-        self.vel = 5
-        self.isJump = False
-        self.jumpCount = 9
-        self.left = False
-        self.right = False
-        self.walkCount = 0
-        self.standing = True
-        self.hitbox = (self.x + 20, self.y, 28, 60)
-        
-    def draw(self,win):
-        if self.walkCount >= 27:
-            self.walkCount = 0
-        if not(self.standing):
-            if self.left == True:
-                win.blit(walkLeft[self.walkCount//3], (self.x,self.y))
-                self.walkCount += 1
-                
-            elif self.right == True:
-                win.blit(walkRight[self.walkCount//3], (self.x,self.y))
-                self.walkCount += 1
-            
-        else:
-            if self.right:
-                win.blit(walkRight[0], (self.x, self.y))
-                
-            else:
-                win.blit(walkLeft[0], (self.x, self.y))
-                
-        self.hitbox = (self.x + 18, self.y + 10, 28, 54)        
-        pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
-                
-                
-class Enemy(object):
-    walkRight = [pygame.image.load('R1E.png'), pygame.image.load('R2E.png'), pygame.image.load('R3E.png'), pygame.image.load('R4E.png'), pygame.image.load('R5E.png'), pygame.image.load('R6E.png'), pygame.image.load('R7E.png'), pygame.image.load('R8E.png'), pygame.image.load('R9E.png'), pygame.image.load('R10E.png'), pygame.image.load('R11E.png')]
-    walkLeft = [pygame.image.load('L1E.png'), pygame.image.load('L2E.png'), pygame.image.load('L3E.png'), pygame.image.load('L4E.png'), pygame.image.load('L5E.png'), pygame.image.load('L6E.png'), pygame.image.load('L7E.png'), pygame.image.load('L8E.png'), pygame.image.load('L9E.png'), pygame.image.load('L10E.png'), pygame.image.load('L11E.png')]
-    
-    def __init__(self,x,y,width,height,end):
+    def __init__(self,x,y,width,height):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
-        self.end = end
-        self.path = [self.x, self.end]
+        self.hitbox = []
+        self.stam = 10#stamina bar
+        self.vel = 10#
+        self.jumpCount = 9#how high can he jump
+        self.isJump = False#whether he is jumping
+        self.facing = 1#what way is he facing
+        self.spin = False
+        self.walk = False
         self.walkCount = 0
-        self.vel = 3
-        self.hitbox = (self.x + 18, self.y + 10, 28, 54)
         
     def draw(self,win):
-        self.move(win)
-        if self.walkCount + 1 >= 33:
-            self.walkCount = 0
+        if self.facing == 1:
             
-        if self.vel > 0:
-            win.blit(self.walkRight[self.walkCount // 3], (self.x, self.y))
-            self.walkCount += 1
-            
-        else:
-            win.blit(self.walkLeft[self.walkCount // 3], (self.x, self.y))
-            self.walkCount += 1
-            
-        self.hitbox = (self.x + 17, self.y + 2, 31, 57)
-        pygame.draw.rect(win, (255,0,0), self.hitbox, 2)
-        
+            if self.isJump == False:
+                
+                if self.spin == False:
+                    
+                    if self.walk == False:
+                        win.blit(f0, (self.x, self.y))
+                        
+                    elif self.walk == True:
+                        win.blit(walkRight[self.walkCount//2], (self.x, self.y))
     
     def move(self,win):
-        if self.vel > 0:
-            if self.x + self.vel < self.path[1]:
-                self.x += self.vel
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_RIGHT]:
+            self.facing = 1
+            self.x += self.vel * self.facing
+            self.run = True
+            
+        elif keys[pygame.K_LEFT]:
+            self.facing = -1
+            self.x += self.vel * self.facing
+            self.run = True
+            
+        if not(self.isJump):
                 
-            else:
-                self.vel = self.vel * -1
-                self.walkCount = 0
+            if keys[pygame.K_UP]:
+                self.isJump = True
                 
         else:
-            if self.x - self.vel > self.path[0]:
-                self.x += self.vel
+            if self.jumpCount >= -9:
+                neg = 1
+                if self.jumpCount < 0:
+                    neg = -1
+                self.y -= (self.jumpCount ** 2) * 0.7 * neg
+                self.jumpCount -= 1
                 
             else:
-                self.vel = self.vel * -1
-                self.walkCount = 0
+                self.isJump = False
+                self.jumpCount = 9
                 
-    def hit(self):
-        pass
-                
-
-            
-class Projectile(object):
-    def __init__(self, x, y, radius, color, facing):
+        
+#normal enemy
+class Troll(object):
+    def __init__(self,x,y,width,height):
         self.x = x
         self.y = y
-        self.radius = radius
-        self.color = color
-        self.facing = facing
-        self.vel = 15 * facing
-        
-    def draw(self,win):
-        pygame.draw.circle(win, self.color, (self.x, self.y), self.radius) 
-    
+        self.width = width
+        self.height = height
+        self.vel = 5
 
-scrwid = 500
+ts = pygame.transform.scale(ts, (800,600))
 run = True
-shootLoop = 0
-man = Player(10, 410, 64, 64)
-goblin = Enemy(100, 415, 64, 64, 450)
-bullets = []
-facing = 1
-
-def reDrawGameWindow():
-    win.blit(bg, (0, 10))
-    man.draw(win)
-    goblin.draw(win)
-    for bullet in bullets:
-        bullet.draw(win)
-    pygame.display.update()
-    
+Srun = pygame.image.load('Sr.png').convert_alpha()
+Srun = pygame.transform.scale(Srun,(22,242))
+Sleft = pygame.transform.flip(Srun, True,False)
 
 
-while run == True:
-    clock.tick(50)
-    pygame.time.delay(35)
-    
-    if shootLoop > 0:
-        shootLoop += 1
+
+def get_image(sheet,frame,width,height, color, big):#taking an image from a sprite sheet
+    image = pygame.Surface((width,height)).convert_alpha()
+    image.blit(sheet, (0,0), (0,(frame * height), 22,(height * frame) + width))
+    image = pygame.transform.scale(image,(big,big))
+    image.set_colorkey(color)
+    return image
+
+def redraw():
+    pass
+
+
+def titlescreen(run,bg,f):
+    while run == True:
+        clock.tick(50)
+        pygame.time.delay(30)
+        win.blit(bg,(0,0))
+        s.draw(win)
         
-    elif shootLoop > 3:
-        shootLoop = 0
-    
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            quit()
-            
-    for bullet in bullets:
-        if bullet.y - bullet.radius < goblin.hitbox[1] + goblin.hitbox[3] and bullet.y + bullet.radius > goblin.hitbox[1]:
-            if bullet.x + bullet.radius > goblin.hitbox[0] and bullet.x - bullet.radius < goblin.hitbox[0] + goblin.hitbox[2]:
-                goblin.hit()
-                bullets.pop(bullets.index(bullet))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                quit()
+        s.move(win)
                 
-        if bullet.x < 500 and bullet.x > 0:
-            bullet.x += bullet.vel
+        pygame.display.update()
+                
             
-        else:
-            bullets.pop(bullets.index(bullet))
             
-    keys = pygame.key.get_pressed()
-    if man.left:
-        facing = -1
-        
-    elif man.right:
-        facing = 1
-    
-    if keys[pygame.K_SPACE] and shootLoop == 0:
-        if man.left:
-            facing = -1
+f0 = get_image(Srun,0,22,22, black,100)
+f1 = get_image(Srun,1,22,22, black,100)
+f2 = get_image(Srun,2,22,22, black,100)
+f3 = get_image(Srun,3,22,22, black,100)
+f4 = get_image(Srun,4,22,22, black,100)
+f5 = get_image(Srun,5,22,22, black,100)
+f6 = get_image(Srun,6,22,22, black,100)
+f7 = get_image(Srun,7,22,22, black,100)
+f8 = get_image(Srun,8,22,22, black,100)
+f9 = get_image(Srun,9,22,22, black,100)
+f10 = get_image(Srun,10,22,22, black,100)
+
+f11 = get_image(Sleft,0,22,22,black,100)
+f12 = get_image(Sleft,1,22,22,black,100)
+f13 = get_image(Sleft,2,22,22,black,100)
+f14 = get_image(Sleft,3,22,22,black,100)
+f15 = get_image(Sleft,4,22,22,black,100)
+f16 = get_image(Sleft,5,22,22,black,100)
+f17 = get_image(Sleft,6,22,22,black,100)
+f18 = get_image(Sleft,7,22,22,black,100)
+f19 = get_image(Sleft,8,22,22,black,100)
+f20 = get_image(Sleft,9,22,22,black,100)
+f21 = get_image(Sleft,10,22,22,black,100)
+
+
+walkRight = [f0,f1,f2,f3]
+walkLeft = [f11,f12,f13,f14]
+jumpRight = [f5,f6]
+jumpLeft = [f16,f17]
+spinRight = [f7,f8,f9,f10]
+spinLeft = [f18,f19,f20,f21]
+
+s = Player(250,250,100,100)
             
-        elif man.right:
-            facing = 1
-            
-        if len(bullets) < 100:
-            bullets.append(Projectile(round(man.x + man.width // 2), round(man.y + man.height // 2), 6, (0,0,0), facing))
-        shootLoop = 1
-    
-    if keys[pygame.K_LEFT] and man.x > man.vel:
-        man.x -= man.vel
-        man.left = True
-        man.right = False
-        man.standing = False
-        
-    elif keys[pygame.K_RIGHT] and man.x < scrwid - man.width - man.vel:
-        man.x += man.vel
-        man.right = True
-        man.left = False
-        man.standing = False
-        
-    else:
-        man.standing = True
-        man.walkCount = 0
-        
-    if not(man.isJump):
-            
-        if keys[pygame.K_UP]:
-            man.isJump = True
-            
-    else:
-        if man.jumpCount >= -9:
-            neg = 1
-            if man.jumpCount < 0:
-                neg = -1
-            man.y -= (man.jumpCount ** 2) * 0.5 * neg
-            man.jumpCount -= 1
-            
-        else:
-            man.isJump = False
-            man.jumpCount = 9
-            
-    reDrawGameWindow()
+titlescreen(run,ts,f15)
     
 pygame.quit()
