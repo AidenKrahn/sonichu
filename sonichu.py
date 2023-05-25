@@ -43,6 +43,7 @@ class Player(object):
         self.spin = False
         self.walk = False
         self.walkCount = 0
+        self.jumpdraw = 0
         
     def draw(self,win):
         if self.facing == 1:
@@ -52,22 +53,79 @@ class Player(object):
                 if self.spin == False:
                     
                     if self.walk == False:
-                        win.blit(f0, (self.x, self.y))
+                        win.blit(f1, (self.x, self.y))
                         
                     elif self.walk == True:
-                        win.blit(walkRight[self.walkCount//2], (self.x, self.y))
+                        self.walkCount += 1
+                        if self.walkCount >= 8:
+                            self.walkCount = 0
+                        win.blit(walkRight[int(self.walkCount / 2)], (self.x, self.y))
+                        
+                elif self.spin == True:
+                    pass
+                
+            elif self.isJump == True:
+                self.jumpdraw += 1
+                if self.jumpdraw >= 4:
+                    self.jumpdraw = 0
+                    self.spin = True
+                    
+                if self.spin == False:
+                    win.blit(jumpRight[int(self.jumpdraw / 2)], (self.x,self.y))
+                    
+                elif self.spin == True:
+                    win.blit(spinRight[int(self.jumpdraw)], (self.x,self.y))
+                    if self.y == 400:
+                        self.spin = False
+    
+    
+                        
+        elif self.facing == -1:
+            
+            if self.isJump == False:
+                
+                if self.spin == False:
+                    
+                    if self.walk == False:
+                        win.blit(f12, (self.x, self.y))
+                        
+                    elif self.walk == True:
+                        self.walkCount += 1
+                        if self.walkCount >= 8:
+                            self.walkCount = 0
+                        win.blit(walkLeft[int(self.walkCount / 2)], (self.x, self.y))
+                        
+                elif self.spin == True:
+                    pass
+                
+            elif self.isJump == True:
+                self.jumpdraw += 1
+                if self.jumpdraw >= 4:
+                    self.jumpdraw = 0
+                    self.spin = True
+                    
+                if self.spin == False:
+                    win.blit(jumpLeft[int(self.jumpdraw / 2)], (self.x,self.y))
+                    
+                elif self.spin == True:
+                    win.blit(spinLeft[int(self.jumpdraw)], (self.x,self.y))
+                    if self.y == 400:
+                        self.spin = False
     
     def move(self,win):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT]:
             self.facing = 1
             self.x += self.vel * self.facing
-            self.run = True
+            self.walk = True
             
         elif keys[pygame.K_LEFT]:
             self.facing = -1
             self.x += self.vel * self.facing
-            self.run = True
+            self.walk = True
+            
+        elif not keys[pygame.K_LEFT] or not keys[pygame.K_RIGHT]:
+            self.walk = False
             
         if not(self.isJump):
                 
@@ -164,7 +222,7 @@ jumpLeft = [f16,f17]
 spinRight = [f7,f8,f9,f10]
 spinLeft = [f18,f19,f20,f21]
 
-s = Player(250,250,100,100)
+s = Player(250,400,100,100)
             
 titlescreen(run,ts,f15)
     
