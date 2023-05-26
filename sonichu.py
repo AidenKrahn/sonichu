@@ -36,8 +36,8 @@ class Player(object):
         self.height = height
         self.hitbox = []
         self.stam = 10#stamina bar
-        self.vel = 10#
-        self.jumpCount = 9#how high can he jump
+        self.vel = 15#
+        self.jumpCount = 9.5#how high can he jump
         self.isJump = False#whether he is jumping
         self.facing = 1#what way is he facing
         self.spin = False
@@ -77,6 +77,7 @@ class Player(object):
                     win.blit(spinRight[int(self.jumpdraw)], (self.x,self.y))
                     if self.y == 400:
                         self.spin = False
+                    
     
     
                         
@@ -95,8 +96,13 @@ class Player(object):
                             self.walkCount = 0
                         win.blit(walkLeft[int(self.walkCount / 2)], (self.x, self.y))
                         
-                elif self.spin == True:
-                    pass
+                    
+                elif self.spin == True:    
+                    if self.isJump == True:
+                            pass
+                        
+                    else:
+                        win.blit(spinLeft[0], (self.x,self.y))
                 
             elif self.isJump == True:
                 self.jumpdraw += 1
@@ -133,7 +139,7 @@ class Player(object):
                 self.isJump = True
                 
         else:
-            if self.jumpCount >= -9:
+            if self.jumpCount >= -9.5:
                 neg = 1
                 if self.jumpCount < 0:
                     neg = -1
@@ -142,7 +148,7 @@ class Player(object):
                 
             else:
                 self.isJump = False
-                self.jumpCount = 9
+                self.jumpCount = 9.5
                 
         
 #normal enemy
@@ -153,6 +159,21 @@ class Troll(object):
         self.width = width
         self.height = height
         self.vel = 5
+        
+        
+class Floor(object):
+    def __init__(self):
+        self.x = 0
+        self.y = 398
+        self.width = 800
+        self.height = 1
+        
+    def collide(self,win,pl):
+        if pl.y != self.y:
+            pass
+        elif pl.y >= self.y:
+            pl.y = self.y + 0.2
+        
 
 ts = pygame.transform.scale(ts, (800,600))
 run = True
@@ -169,15 +190,32 @@ def get_image(sheet,frame,width,height, color, big):#taking an image from a spri
     image.set_colorkey(color)
     return image
 
-def redraw():
-    pass
 
 
 def titlescreen(run,bg,f):
     while run == True:
-        clock.tick(50)
+        clock.tick(60)
         pygame.time.delay(30)
         win.blit(bg,(0,0))
+        #s.draw(win)
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_SPACE]:
+            lv1(run,bg)
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                quit()
+        #s.move(win)
+                
+        pygame.display.update()
+        
+    
+def lv1(run,bg):
+    while run == True:
+        clock.tick(60)
+        pygame.time.delay(40)
+        win.fill((purple))
         s.draw(win)
         
         for event in pygame.event.get():
@@ -185,6 +223,7 @@ def titlescreen(run,bg,f):
                 run = False
                 quit()
         s.move(win)
+        floor.collide(win,s)
                 
         pygame.display.update()
                 
@@ -223,6 +262,7 @@ spinRight = [f7,f8,f9,f10]
 spinLeft = [f18,f19,f20,f21]
 
 s = Player(250,400,100,100)
+floor = Floor()
             
 titlescreen(run,ts,f15)
     
