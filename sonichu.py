@@ -50,6 +50,8 @@ class Player(object):
         self.canSpin = True
         self.isHit = True # NOT SWEARING
         self.isHitting = False
+        self.maskWalk = pygame.mask.from_surface(f0)
+        self.rectWalk = f0.get_rect()
         
     def draw(self,win):
         if self.spin2 == False:
@@ -221,34 +223,48 @@ class Player(object):
     
     def hitting(self,win):
         pass
+
         
 #normal enemy
 class Troll(object):
-    def __init__(self,x,y,width,height):
+    def __init__(self,x,y,width,height,xlimit):
         self.x = x
+        self.xo = x
         self.y = y
         self.width = width
         self.height = height
         self.vel = 5
+        self.facing  = 1
+        self.xlimit = xlimit
+        self.frame = 0
+        self.alive = True
         
     def draw(self,win):
-        while True:
-            win.blit
+        if self.facing == 1:
+            win.blit(tWalkRight[int(self.frame/2)], (self.x, self.y))
+            self.frame += 1
+            if self.frame >= 12:
+                self.frame = 0
+            
+        if self.facing == -1:
+            win.blit(tWalkLeft[int(self.frame/2)], (self.x,self.y))
+            self.frame += 1
+            if self.frame >= 12:
+                self.frame = 0
+                
+    def schmoovin(self,win):
+        self.x = brt.x - self.x
+        self.xo = brt.x - self.xo
+        if self.facing == 1:
+            self.x += self.vel
+            if self.x > self.xo + self.xlimit:
+                self.facing = -1
+            
+        if self.facing == -1:
+            self.x -= self.vel
+            if self.x < self.xo - self.xlimit:
+                self.facing = 1
         
-        
-        
-class Floor(object):
-    def __init__(self,x,y,width,height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        
-    def collide(self,win,pl):
-        if pl.y != self.y:
-            pass
-        elif pl.y >= self.y:
-            pl.y = self.y + 0.2
             
 class Background(object):
     def __init__(self,x):
@@ -281,19 +297,6 @@ class Bullet(object):
 class Level(object):
     def __init__(self):
         pass
-ts = pygame.transform.scale(ts, (800,600))
-run = True
-Srun = pygame.image.load('Sr.png').convert_alpha()
-Srun = pygame.transform.scale(Srun,(22,242))
-Sleft = pygame.transform.flip(Srun, True,False)
-
-Pright = pygame.image.load('Pm.png').convert_alpha()
-Pright = pygame.transform.scale(Pright, (21.5,21.5*6))
-Pleft = pygame.transform.flip(Pright,True,False)
-bg1 = pygame.image.load('bg.jpg').convert_alpha()
-brt = Background(0)
-
-
 
 def get_image(sheet,frame,width,height, color, big):#taking an image from a sprite sheet
     image = pygame.Surface((width,height)).convert_alpha()
@@ -331,18 +334,28 @@ def lv1(run,bg):
         pygame.time.delay(40)
         win.blit(bg,(brt.x,brt.y))
         s.draw(win)
-        win.blit(t0,(0,0))
-        
+        t.draw(win)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 quit()
         s.move(win)
-        floor.collide(win,s)
+        t.schmoovin(win)
                 
         pygame.display.update()
                 
             
+ts = pygame.transform.scale(ts, (800,600))
+run = True
+Srun = pygame.image.load('Sr.png').convert_alpha()
+Srun = pygame.transform.scale(Srun,(22,242))
+Sleft = pygame.transform.flip(Srun, True,False)
+
+Pright = pygame.image.load('Pm.png').convert_alpha()
+Pright = pygame.transform.scale(Pright, (22,22*6))
+Pleft = pygame.transform.flip(Pright,True,False).convert_alpha()
+bg1 = pygame.image.load('bg.jpg').convert_alpha()
+brt = Background(0)
             
 f0 = get_image(Srun,0,22,22, black,100)
 
@@ -377,11 +390,11 @@ t4 = get_image(Pright,4,22,22,black,100)
 t5 = get_image(Pright,5,22,22,black,100)
 
 t6 = get_image(Pleft,0,22,22,black,100)
-t7 = get_image(Pleft,0,22,22,black,100)
-t8 = get_image(Pleft,0,22,22,black,100)
-t9 = get_image(Pleft,0,22,22,black,100)
-t10 = get_image(Pleft,0,22,22,black,100)
-t11 = get_image(Pleft,0,22,22,black,100)
+t7 = get_image(Pleft,1,22,22,black,100)
+t8 = get_image(Pleft,2,22,22,black,100)
+t9 = get_image(Pleft,3,22,22,black,100)
+t10 = get_image(Pleft,4,22,22,black,100)
+t11 = get_image(Pleft,5,22,22,black,100)
 
 walkRight = [f0,f1,f2,f3]
 walkLeft = [f11,f12,f13,f14]
@@ -390,10 +403,14 @@ jumpLeft = [f16,f17]
 spinRight = [f7,f8,f9,f10]
 spinLeft = [f18,f19,f20,f21]
 
+tWalkRight = [t0,t1,t2,t3,t4,t5]
+tWalkLeft = [t6,t7,t8,t9,t10,t11]
+
 s = Player(250,500,100,100)
-floor = Floor(0, 598, 800,1)
-            
+t = Troll(300,500,100,100,100)
+
 titlescreen(run,ts,f15)
     
 pygame.quit()
+
 
