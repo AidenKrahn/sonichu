@@ -88,9 +88,11 @@ class Player(object):
                     self.spin = True
                     
                 if self.spin == False:
+                    self.isHitting = False
                     win.blit(jumpRight[int(self.jumpdraw / 2)], (self.x,self.y))
                     
                 elif self.spin == True:
+                    self.isHitting = True
                     win.blit(spinRight[int(self.jumpdraw)], (self.x,self.y))
                     if self.y == 500:
                         self.spin = False
@@ -100,6 +102,7 @@ class Player(object):
             if self.isJump == False:
                 
                 if self.spin2 == False:
+                    self.isHitting = False
                     
                     if self.walk == False:
                         win.blit(f12, (self.x, self.y))
@@ -136,6 +139,8 @@ class Player(object):
     
     def move(self,win):
         keys = pygame.key.get_pressed()
+        if keys[pygame.K_RIGHT] == False or keys[pygame.K_LEFT] == False:
+            brt.shmove = False
         
         if keys[pygame.K_DOWN]:
             if self.canSpin == True:
@@ -152,7 +157,8 @@ class Player(object):
         if self.spin2 == True:    
             
             if self.spinCount <= 20:
-                self.spinCount += 1 
+                self.spinCount += 1
+                self.isHitting = True
                 
             if self.spinCount >= 20:
                 self.spin2 = False
@@ -170,20 +176,26 @@ class Player(object):
             
         if keys[pygame.K_RIGHT]:
             self.facing = 1
-            if self.x <= 350:
+            if self.x < 350:
                 self.x += self.vel * self.facing
+                brt.shmove = False
                 
             else:
                 brt.scroll(win,self)
+                if self.x < 350 and key[pygame.K_RIGHT]:
+                    brt.shmove = True
             self.walk = True
             
         elif keys[pygame.K_LEFT]:
             self.facing = -1
-            if self.x >= 30:
+            if self.x > 30:
                 self.x += self.vel * self.facing
+                brt.shmove = False
                 
             else:
                 brt.scroll(win,self)
+                if self.x > 30 and keys[pygame.K_LEFT]:
+                    brt.shmove = True
             self.walk = True
             
         elif not keys[pygame.K_LEFT] or not keys[pygame.K_RIGHT]:
@@ -238,6 +250,8 @@ class Troll(object):
         self.xlimit = xlimit
         self.frame = 0
         self.alive = True
+        self.mask = pygame.mask.from_surface(t0)
+        self.rect = t0.get_rect()
         
     def draw(self,win):
         if self.facing == 1:
@@ -253,8 +267,15 @@ class Troll(object):
                 self.frame = 0
                 
     def schmoovin(self,win):
-        self.x = brt.x - self.x
-        self.xo = brt.x - self.xo
+        if brt.shmove == True:
+            if s.facing == 1:
+                self.x = self.x - brt.vel
+                self.xo = self.xo - brt.vel
+                
+            if s.facing == -1:
+                self.x = self.x + brt.vel
+                self.xo = self.xo + brt.vel
+            
         if self.facing == 1:
             self.x += self.vel
             if self.x > self.xo + self.xlimit:
@@ -271,19 +292,24 @@ class Background(object):
         self.x = x
         self.y = 0
         self.vel = 10
+        self.shmove = False
         
         
     def scroll(self,win,s):
         if self.x <= -7600:
             self.x = -7599
+            brt.shmove = False
         if self.x >= 0:
             self.x = -1
+            brt.shmove = False
         else:
             if s.facing == 1:
                 self.x -= self.vel
+                brt.shmove = True
                 
             else:
                 self.x += self.vel
+                brt.shmove = True
             
 class Boss(object):
     def __init__(self,x,y,width,height):
@@ -334,13 +360,15 @@ def lv1(run,bg):
         pygame.time.delay(40)
         win.blit(bg,(brt.x,brt.y))
         s.draw(win)
-        t.draw(win)
+        for pm in pmList:
+            pm.draw(win)
+            pm.schmoovin(win)
+            
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 quit()
         s.move(win)
-        t.schmoovin(win)
                 
         pygame.display.update()
                 
@@ -407,7 +435,12 @@ tWalkRight = [t0,t1,t2,t3,t4,t5]
 tWalkLeft = [t6,t7,t8,t9,t10,t11]
 
 s = Player(250,500,100,100)
-t = Troll(300,500,100,100,100)
+pm1 = Troll(2000,500,100,100,100)
+pm2 = Troll(1000,500,100,100,100)
+pm3 = Troll(3000,500,100,100,100)
+pm4 = Troll(4000,500,100,100,100)
+pm5 = Troll(5000,500,100,100,100)
+pmList = [pm1,pm2,pm3,pm4,pm5]
 
 titlescreen(run,ts,f15)
     
