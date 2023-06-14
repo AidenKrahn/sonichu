@@ -2,7 +2,7 @@
 #AidenKrahn
 #Started May 16
 
-import pygame, random
+import pygame, random, csv
 
 pygame.init()
 
@@ -320,9 +320,34 @@ class Bullet(object):
         pass
             
         
-class Level(object):
-    def __init__(self):
+class Plat(object):
+    def __init__(self,x,y,width,height):
         pass
+    
+class Hurt(object):
+    def __init__(self,x,y,width,height):
+        pass
+    
+class Drink(object):
+    def __init__(self,x,y,width,height):
+        pass
+    
+class World():
+    def __init__(self):
+        self.obst_list = []
+        
+    def process(self,data):
+        for y, row in enumerate(data):
+            for x, tile in enumerate(row):
+                if tile >= 0:
+                    if tile == 2:
+                        brick
+                    if tile == 3:
+                        bluespike
+                    if tile == 4:
+                        pass
+                    if tile == 5:
+                        pass
 
 def get_image(sheet,frame,width,height, color, big):#taking an image from a sprite sheet
     image = pygame.Surface((width,height)).convert_alpha()
@@ -372,7 +397,24 @@ def lv1(run,bg):
                 
         pygame.display.update()
                 
-            
+    
+tileSize = 100
+rows = 6
+cols = 84
+tileTypes = 6
+
+worldData = []
+for row in range(rows):
+    r = [1] * cols
+    worldData.append(r)
+    
+#load in level data
+with open('slvldata.csv', newLine = ' ') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',')
+    for x, row in enumerate(reader):
+        for y, tile in enumerate(row):
+            world_data
+
 ts = pygame.transform.scale(ts, (800,600))
 run = True
 Srun = pygame.image.load('Sr.png').convert_alpha()
@@ -384,9 +426,13 @@ Pright = pygame.transform.scale(Pright, (22,22*6))
 Pleft = pygame.transform.flip(Pright,True,False).convert_alpha()
 bg1 = pygame.image.load('bg.jpg').convert_alpha()
 brt = Background(0)
+brick = pygame.image.load('brick.png').convert_alpha()
+bluespike = pygame.image.load('bluespike.png').convert_alpha()
+
+brick = get_image(brick,0,32,32,white,100)
+bluespike = get_image(bluespike,0,32,32,white,100)
             
 f0 = get_image(Srun,0,22,22, black,100)
-
 f1 = get_image(Srun,1,22,22, black,100)
 f2 = get_image(Srun,2,22,22, black,100)
 f3 = get_image(Srun,3,22,22, black,100)
@@ -445,5 +491,4 @@ pmList = [pm1,pm2,pm3,pm4,pm5]
 titlescreen(run,ts,f15)
     
 pygame.quit()
-
 
