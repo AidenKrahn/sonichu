@@ -57,8 +57,13 @@ class Player(object):
         self.health = 3
         self.onGround = True #whether he was on ground or not jumping
         self.neg = 1#what direction he's going while jumping
+        self.xCol = False
+        self.up = 0
         
     def draw(self,win):
+        if self.onGround == True:
+            print(self.up)
+            self.up += 1
         self.rect.x = self.x#making sure rect and self are aligned
         self.rect.y = self.y
         self.x = self.rect.x
@@ -155,6 +160,8 @@ class Player(object):
                         self.spin = False
     
     def move(self,win):
+        if self.onGround == False and self.isJump == False:
+            self.y += 9.5
         if self.y == 500:#if the charater is on the lowest level without being on the screen, he's on the ground
             self.onGround = True
         keys = pygame.key.get_pressed()#get pressed key
@@ -258,25 +265,22 @@ class Player(object):
             pygame.draw.rect(win, green, pygame.Rect(s.x, s.y - 40, 120,20))
             pygame.draw.rect(win, red, pygame.Rect(s.x,s.y-40,self.notSpin*2.4,20))
                 
-    def hit(self,win,gus):# trying to get collision to work, part 2. virtually the same thing I have in a later section. neither work.
-        
-        if self.rect.colliderect(gus.rect.x, gus.rect.y, gus.width, gus.height):#if colliding in the x direction(with thing in list)
-            self.vel = 0#stop moving. doesn't work
-            
-        else:
-            pass
-            #self.vel = 15
-            
-        if self.rect.colliderect(gus.rect.x, gus.rect.y + (self.jumpCount ** 2) * 0.7 * self.neg, gus.width, gus.height):#if colliding in the y direction
-            if self.neg == 1:#if going up and hits something
-                self.neg = -1#start going down
-                self.jumpCount = 0
-                self.onGround = False
-                
-            if self.neg == -1:#if going down and hits something
-                self.onGround = True#is on ground
-                self.jumpCount = 9.5
-            self.onGround = True
+    #def hit(self,win,gus):# trying to get collision to work, part 2. virtually the same thing I have in a later section. neither work.
+#         
+#         if self.rect.colliderect(gus.rect.x + self.vel, gus.rect.y, gus.width, gus.height):#if colliding in the x direction(with thing in list)
+#             self.vel = 0#stop moving. doesn't work
+#             
+#             
+#         if self.rect.colliderect(gus.rect.x, gus.rect.y + (self.jumpCount ** 2) * 0.7 * self.neg, gus.width, gus.height):#if colliding in the y direction
+#             if self.neg == 1:#if going up and hits something
+#                 self.neg = -1#start going down
+#                 self.jumpCount = 0
+#                 self.onGround = False
+#                 
+#             elif self.neg == -1:#if going down and hits something
+#                 self.onGround = True#is on ground
+#                 self.jumpCount = 9.5
+#             self.onGround = True
     
     def hitting(self,win):
         pass
@@ -396,9 +400,12 @@ class Plat(object):#bricks & floor
         self.rect.x = self.x
         self.rect.y = self.y
         pygame.draw.rect(win, (white), self.rect, 2)
+        #if not self.rect.colliderect(s.rect.x, s.rect.y, s.width, s.height):
+            #s.onGround = False
         
         if self.rect.colliderect(s.rect.x, s.rect.y, s.width, s.height):
-            s.vel = 0
+            s.xCol = True
+            s.onGround = True
             
         else:
             s.vel = 15
@@ -475,7 +482,7 @@ def get_image(sheet,frame,width,height, color, big):#taking an image from a spri
     return image
 
 
-
+#the while loops that run the game
 def titlescreen(run,bg):
     while run == True:#title screen
         clock.tick(60)
@@ -511,7 +518,7 @@ def lv1(run,bg):
             win.blit(brickimg, (brick.x,brick.y))
             brick.schmoovin(win)
             brick.col(win)
-            s.hit(win,brick)
+            #s.hit(win,brick)
             
         for spike in spikeList:#''
             win.blit(bluespikeimg, (spike.x,spike.y))
@@ -630,5 +637,10 @@ titlescreen(run,ts)
 pygame.quit()
 
 
-#i think the worst part about giving up now i knowing that i'm so close, that i'm one step from figuring out why my player goes through blocks or gets just above them
-#before stopping. why my floor isn't there even though it's there in the list. I feel like I'm one small breakthrough away from solving everything, but nobody can tell me what it is.
+#i think the worst part about giving up now i knowing that i'm so close, that i'm one step from figuring out why
+#my player goes through blocks or gets just above them
+#before stopping. why my floor isn't there even though it's there in the list. I feel like
+#I'm one small breakthrough away from solving everything, but nobody can tell me what it is.
+#I also did not have the opportunity to split this up into multiple python external files. whoops.
+#The only thing I'm proud of in this is that I solved most of these problems on my own
+#If I had more time and brain power, I could absolutely finish this. i guess the presentation comes first
